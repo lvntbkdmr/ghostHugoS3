@@ -29,9 +29,6 @@ jobs:
           node-version: '14.10'
           cache: 'npm'
 
-      - name: Install Node dependencies    
-        run: npm install
-
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
         with:
@@ -40,6 +37,9 @@ jobs:
   
       - name: Check out source code
         uses: actions/checkout@v2
+
+      - name: Install Node dependencies    
+        run: npm install
 
       - name: Check out s3deploy
         uses: actions/checkout@v2
