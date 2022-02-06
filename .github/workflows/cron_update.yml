@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
         with:
@@ -34,9 +37,6 @@ jobs:
         with:
           hugo-version: '0.91.2'
           # extended: true
-  
-      - name: Check out source code
-        uses: actions/checkout@v2
 
       - name: Install Node dependencies    
         run: npm install
