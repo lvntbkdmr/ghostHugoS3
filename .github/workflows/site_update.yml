@@ -28,7 +28,7 @@ jobs:
 
       - name: Cancel redundant workflows
         run: echo "Cancel redundant workflows finished"
-        
+
   build:
     runs-on: ubuntu-latest
 
@@ -79,10 +79,14 @@ jobs:
         env:
           GHOST_URL: ${{ secrets.GHOST_URL }}
           GHOST_KEY: ${{ secrets.GHOST_KEY }}
-        run: node createMdFilesFromGhost.js
+        run: |
+          rm ./blog/content/posts/*
+          node createMdFilesFromGhost.js
 
       - name: Build Hugo Blog
-        run: hugo --minify
+        run: |
+          rm -rf public
+          hugo --gc --minify
         working-directory: blog
 
       - name: Commit changes to Github repo
