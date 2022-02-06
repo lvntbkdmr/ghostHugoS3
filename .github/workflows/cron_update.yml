@@ -27,7 +27,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14.10'
-          cache: 'npm'
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
