@@ -28,6 +28,8 @@ jobs:
         with:
           node-version: '14.10'
           cache: 'npm'
+
+      - name: Install Node dependencies    
         run: npm install
 
       - name: Setup Hugo
