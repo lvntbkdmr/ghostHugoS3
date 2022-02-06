@@ -47,7 +47,7 @@ jobs:
           repository: bep/s3deploy
           path: s3deploy
 
-      - name: Build s3peploy
+      - name: Build s3deploy
         run: go build -o s3deploy
         working-directory: s3deploy
 
