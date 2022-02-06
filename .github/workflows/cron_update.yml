@@ -58,6 +58,7 @@ jobs:
           submodules: true  # Fetch Hugo themes (true OR recursive)
           fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
           path: blog
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
 
       - name: Create MD Files from Ghost CMS
         env:
@@ -69,15 +70,20 @@ jobs:
         run: hugo --minify
         working-directory: blog
 
-      - name: Push changes to Github repo
+      - name: Commit changes to Github repo
         run: |
           cd ./blog
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
           git commit -m "Post update from Github Action"
-          git push  
-          cd ../
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          directory: blog
       
       - name: Deploy changes to S3 Bucket
         run: ../../s3deploy/s3deploy -v -bucket "leventbekdemir.com" -distribution-id "${{ secrets.CDN_1 }}" -distribution-id "${{ secrets.CDN_2 }}" -key "${{ secrets.AWS_KEY }}" -region "us-east-1" -secret "${{ secrets.AWS_SECRET }}" 
