@@ -1,0 +1,74 @@
+name: CRON Update Job
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+
+      - name: Set up Node 
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.10'
+          cache: 'npm'
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.91.2'
+          # extended: true
+  
+      - name: Check out source code
+        uses: actions/checkout@v2
+
+      - name: Check out s3deploy
+        uses: actions/checkout@v2
+        with:
+          repository: bep/s3deploy
+          path: s3deploy
+
+      - name: Build s3peploy
+        run: go build -o s3deploy
+        working-directory: s3deploy
+
+      - name: Check out blog
+        uses: actions/checkout@v2
+        with:
+          repository: lvntbkdmr/blog
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+          path: blog
+
+      - name: Create MD Files from Ghost CMS
+        env:
+          GHOST_URL: ${{ secrets.GHOST_URL }}
+          GHOST_KEY: ${{ secrets.GHOST_KEY }}
+        run: node createMdFilesFromGhost.js
+
+      - name: Build Hugo Blog
+        run: hugo --minify
+        working-directory: blog
+
+      - name: Push changes to Github repo
+        uses: actions/checkout@v2
+        run: |
+          cd ./blog
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Post update from Github Action"
+          git push  
+          cd ../
+      
+      - name: Deploy changes to S3 Bucket
+        run: ../../s3deploy/s3deploy -v -bucket "leventbekdemir.com" -distribution-id "${{ secrets.CDN_1 }}" -distribution-id "${{ secrets.CDN_2 }}" -key "${{ secrets.AWS_KEY }}" -region "us-east-1" -secret "${{ secrets.AWS_SECRET }}" 
+        working-directory: ./blog/public
