@@ -1,8 +1,16 @@
-name: CRON Update Job
+name: Site build
 
+# workflow triggers
 on:
-  schedule:
-    - cron: "*/30 * * * *"
+  push:
+    branches: [ main ]
+  #pull_request:
+  #  branches: [ source ]
+  workflow_dispatch:
+
+#on:
+#  schedule:
+#    - cron: "*/30 * * * *"
 
 jobs:
   build:
