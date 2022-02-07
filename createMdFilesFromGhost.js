@@ -2,6 +2,7 @@ const GhostContentAPI = require('@tryghost/content-api');
 const yaml = require('js-yaml');
 const fs = require('fs-extra');
 const path = require('path');
+var TurndownService = require('turndown');
 
 // On Netlify,these environment variables are set in the admin.
 if (process.env.NODE_ENV !== 'production') {
@@ -16,6 +17,8 @@ const api = new GhostContentAPI({
 	version: 'v3'
 });
 
+var turndownService = new TurndownService();
+
 const createMdFilesFromGhost = async () => {
     console.time('All posts converted to Markdown in');
 
@@ -29,6 +32,8 @@ const createMdFilesFromGhost = async () => {
 
         await Promise.all(posts.map(async (post) => {
             let content = post.html;
+
+            var markdown_content = turndownService.turndown(content);
             
             const frontmatter = {
                 title: post.meta_title || post.title,
@@ -92,7 +97,7 @@ const createMdFilesFromGhost = async () => {
             const yamlPost = await yaml.dump(frontmatter);
 
             // Super simple concatenating of the frontmatter and our content
-            const fileString = `---\n${yamlPost}\n---\n${content}\n`;
+            const fileString = `---\n${yamlPost}\n---\n${markdown_content}\n`;
 
             // Save the final string of our file as a Markdown file
             await fs.writeFile(path.join('blog/content/posts', `${post.slug}.md`), fileString, { flag: 'w' });

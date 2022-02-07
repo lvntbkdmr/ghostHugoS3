@@ -1,3 +1,4 @@
 node_modules
 blog
 s3deploy
+.env
